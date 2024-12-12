@@ -27,7 +27,7 @@ function page() {
       <Nav />
       <div className="container mx-auto mt-14">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-10 md:px-20">
-        {jsonData.map((item) => (
+        {jsonData.map((item,index) => (
           <div className="bg-white rounded-xl shadow-md overflow-hidden">
               <div className="relative z-10">
                   <img className="w-full h-full object-cover" src="https://via.placeholder.com/600x360"/>
@@ -42,7 +42,7 @@ function page() {
                   </div>
               </div>
               <div className="p-4">
-                  <div className="text-lg font-medium text-gray-800 mb-2">Title {item.content}</div>
+                  <div key={index} className="text-lg font-medium text-gray-800 mb-2">Title {item.content}</div>
                   <p className="text-gray-500 text-sm overflow-hidden text-ellipsis line-clamp-1">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed auctor, mi sed
                       egestas tincidunt, libero dolor bibendum nisl, non aliquam quam massa id lacus.</p>
                       <div className="flex items-center mt-2.5 mb-5">
