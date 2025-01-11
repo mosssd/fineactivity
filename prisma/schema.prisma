@@ -10,13 +10,72 @@ datasource db {
 model User {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String?
+  age       String?
+  instagram String?
   email     String   @unique
   password  String?
   image     String?  @default("https://cdn-icons-png.flaticon.com/512/149/149071.png")
   role      String   @default("member")
+  activitiesPosted  Activity[] 
+  EventPosted  Event[]
+  GroupPosted  Group[]
+  savedActivities  String[] // ความสัมพันธ์กับ SavedActivity
   emailVerified DateTime?
+  listofGroup String[]
   accounts   Account[]
   sessions   Session[]
+}
+
+model Activity {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  activityName String
+  imageMain   String
+  imageDetail String[]   @default([])
+  description String
+  address     String?
+  userId      String     @db.ObjectId
+  postedBy    User       @relation(fields: [userId], references: [id])
+  categories  String[]
+  contact    String
+  activityGroup Group[]
+  createdAt  DateTime @default(now()) @map("created_at")
+}
+
+model Group {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  groupName   String
+  description String
+  userId      String     @db.ObjectId
+  postedBy    User       @relation(fields: [userId], references: [id])
+  activityId  String     @db.ObjectId
+  activityBy  Activity   @relation(fields: [activityId], references: [id])
+  date   DateTime
+  startTime  String @default("00:00")
+  endTime    String @default("00:00")
+  listUserJoin String[]
+  createdAt  DateTime @default(now()) @map("created_at")
+} 
+model Event {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  eventName String
+  image   String
+  description String
+  address     String?
+  userId      String     @db.ObjectId
+  postedBy    User       @relation(fields: [userId], references: [id])
+  categories  String[]
+  contact    String
+  startDate  DateTime 
+  endDate    DateTime
+  startTime  String @default("00:00")
+  endTime    String @default("00:00")
+  createdAt  DateTime @default(now()) @map("created_at")
+  listUserJoin String[]
+}
+
+model Category {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  name    String
 }
 
 model Account {
