@@ -7,8 +7,7 @@ import Link from 'next/link'
 function RegisterPage() {
   return (
     <div>
-      <Nav />
-      <div className="container mx-20 mt-20">
+      <div className="container mx-20 mt-10">
         <h3>Register Page</h3>
         <hr className='my-3'/>
         <form action="">
@@ -18,7 +17,7 @@ function RegisterPage() {
           <input className="block bg-gray-100 p-2 my-2 rounded-md" type="password" placeholder='Confirm your password'/>
           <button type='submit' className='bg-blue-500 text-white p-1 rounded-md'>Sign Up</button>
           <hr className='my-3'/>
-          <p>Already have an account? <Link className='text-blue-300 hover:underline' href="/login">Sign In</Link></p>
+          {/* <p>Already have an account? <Link className='text-blue-300 hover:underline' href="/login">Sign In</Link></p> */}
         </form>
       </div>
     </div>
