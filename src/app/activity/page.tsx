@@ -15,51 +15,35 @@ function ActivityPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const { data: session, update: updateSession} = useSession(); // ดึงข้อมูล session จาก NextAuth
 
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get('/api/activitycategory');
+      const map: Record<string, string> = {};
+      response.data.forEach((category: { id: string, name: string }) => {
+        map[category.id] = category.name;
+      });
+      setCategoriesMap(map);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get('/api/activity');
+      setData(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get('/api/activitycategory');
-        const map: Record<string, string> = {};
-        response.data.forEach((category: { id: string, name: string }) => {
-          map[category.id] = category.name;
-        });
-        setCategoriesMap(map);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('/api/activity');
-        setData(response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    updateSession();
-
+    updateSession(); 
     fetchCategories();
     fetchData();
   }, []); 
-
-  useEffect(() => {
-    // ดึงข้อมูลกิจกรรมจาก API
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('/api/activity');
-        setData(response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []); // [] หมายถึงรัน useEffect ครั้งเดียวเมื่อ component ถูกโหลด
 
   useEffect(() => {
     // กรองข้อมูลตามค่าการค้นหา
@@ -135,7 +119,10 @@ function ActivityPage() {
           <Link href={`/activity/${item.id}`} key={index}>
             <div className="bg-white rounded-xl shadow-md overflow-hidden">
                 <div className="relative z-10">
-                    <img className="w-[600px] h-[200px] object-cover" src={item.imageMain || "https://via.placeholder.com/600x360"}/>
+                    <img className="w-[600px] h-[200px] object-cover" 
+                      src={item.imageMain || "https://via.placeholder.com/600x360"}
+                      alt={item.activityName}
+                    />
                     <div className="absolute top-4 right-4 bg-white rounded-full w-8 h-8 flex items-center justify-center">
                       <button className='pt-1'>
                         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" className="fill-gray-500 hover:fill-red-500 transition-all duration-300" viewBox="0 0 16 16">

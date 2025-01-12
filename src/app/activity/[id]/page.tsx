@@ -1,9 +1,12 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useSession } from 'next-auth/react'
 import axios from 'axios';
 import Nav from '../../components/Nav';
 import { ScrollArea,ScrollBar } from "@/components/ui/scroll-area";
+import CreateGroupModal from "../../components/CreateGroupModal";
+import { setgroups } from 'node:process';
 interface Activity {
   imageMain?: string;
   activityName: string;
@@ -14,7 +17,7 @@ interface Activity {
 
 interface Group {
   id: string;
-  name: string;
+  groupName: string;
   date: string;
 }
 
@@ -23,46 +26,76 @@ function ActivityDetail() {
   const [activity, setActivity] = useState<Activity | null>(null);
   const [categoriesMap, setCategoriesMap] = useState<Record<string, string>>({});
   const [groups, setGroups] = useState<Group[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { data: session, update: updateSession} = useSession(); // ดึงข้อมูล session จาก NextAuth
   const { id } = useParams() as { id: string }; 
 
-  const mockGroups: Group[] = [
-    { id: "1", name: "Group Alpha", date: "2025-01-10" },
-    { id: "2", name: "Group Beta", date: "2025-01-12" },
-    { id: "3", name: "Group Gamma", date: "2025-01-15" },
-  ];
+  const fetchGroups = async () => { 
+    try {
+      const response = await axios.get('/api/group');
+      setGroups(response.data);
+    } catch (error) {
+      console.error("Error fetching groups:", error);
+    }
+  }
+
+  const fetchActivity = async () => {
+    try {
+      const response = await axios.get(`/api/activity/${id}`);
+      setActivity(response.data);
+    } catch (error) {
+      console.error("Error fetching activity details:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get('/api/activitycategory');
+      const map: Record<string, string> = {};
+      response.data.forEach((category: { id: string; name: string }) => {
+        map[category.id] = category.name;
+      });
+      setCategoriesMap(map);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
-
-    const fetchActivity = async () => {
-      try {
-        const response = await axios.get(`/api/activity/${id}`);
-        setActivity(response.data);
-      } catch (error) {
-        console.error("Error fetching activity details:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get('/api/activitycategory');
-        const map: Record<string, string> = {};
-        response.data.forEach((category: { id: string; name: string }) => {
-          map[category.id] = category.name;
-        });
-        setCategoriesMap(map);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-    
-    setGroups(mockGroups);
+    updateSession();
+    fetchGroups();
     fetchActivity();
     fetchCategories();
   }, [id]);
+
+  const handleCreateGroup = async (form: any) => {
+    try {
+      if (!session?.user?.id) {
+        alert("User ID is required to create a group.");
+        return;
+      }
+
+      const payload = {
+        ...form,
+        activityId: id,
+        userId: session.user.id, // ส่ง userId จาก session ไปกับฟอร์ม
+      };
+
+      await axios.post("/api/group", payload);
+      // alert("Activity created successfully!");
+      setIsModalOpen(false);
+      // Reload data
+      const response = await axios.get("/api/group");
+      setGroups(response.data);
+    } catch (error) {
+      console.error("Error creating group:", error);
+      alert("Failed to create group.");
+    }
+  };
 
   if (loading) {
     return (
@@ -116,9 +149,7 @@ function ActivityDetail() {
           <h2 className="text-2xl font-bold text-gray-800 mr-4">กลุ่ม</h2>
           <button
             className="bg-blue-500 text-white py-2 px-4 rounded-md shadow-md hover:bg-blue-600 transition duration-300"
-            onClick={() => {
-              console.log("สร้างกลุ่มใหม่");
-            }}
+            onClick={() => setIsModalOpen(true)}
           >
             สร้างกลุ่ม
           </button>
@@ -131,7 +162,7 @@ function ActivityDetail() {
                   key={group.id}
                   className="bg-white p-4 rounded-lg shadow-md border w-48 text-center py-10"
                 >
-                  <h3 className="text-lg font-bold text-gray-800">{group.name}</h3>
+                  <h3 className="text-lg font-bold text-gray-800">{group.groupName}</h3>
                   <p className="text-sm text-gray-600">
                     {new Date(group.date).toLocaleDateString()}
                   </p>
@@ -144,6 +175,11 @@ function ActivityDetail() {
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
       </div>
+      <CreateGroupModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleCreateGroup}
+      />
     </div>
   );
 }
