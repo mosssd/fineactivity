@@ -38,6 +38,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         postedBy: {
           connect: { id: userId }
         },
+        listUserJoin: [userId],
       },
     });
 
@@ -57,7 +58,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         postedBy: true,
       },
     });
-
+    // console.log("groups",groups);
     return NextResponse.json(groups);
   } catch (error) {
     console.error("Error fetching groups:", error);

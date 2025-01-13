@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
-
+//เข้ากลุ่ม
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
   try {
     const body = await request.json();

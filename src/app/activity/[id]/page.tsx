@@ -6,7 +6,11 @@ import axios from 'axios';
 import Nav from '../../components/Nav';
 import { ScrollArea,ScrollBar } from "@/components/ui/scroll-area";
 import CreateGroupModal from "../../components/CreateGroupModal";
+import GroupJoinModal from "../../components/GroupJoinModal";
 import { setgroups } from 'node:process';
+import { format } from 'date-fns'
+import { th } from 'date-fns/locale'
+import { toast } from 'react-toastify';
 interface Activity {
   imageMain?: string;
   activityName: string;
@@ -18,7 +22,10 @@ interface Activity {
 interface Group {
   id: string;
   groupName: string;
-  date: string;
+  description: string;
+  date: Date;
+  startTime: string;
+  endTime: string;
 }
 
 function ActivityDetail() {
@@ -27,13 +34,15 @@ function ActivityDetail() {
   const [categoriesMap, setCategoriesMap] = useState<Record<string, string>>({});
   const [groups, setGroups] = useState<Group[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
+  const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const { data: session, update: updateSession} = useSession(); // ดึงข้อมูล session จาก NextAuth
   const { id } = useParams() as { id: string }; 
 
   const fetchGroups = async () => { 
     try {
-      const response = await axios.get('/api/group');
+      const response = await axios.get(`/api/group/activity/${id}`);
       setGroups(response.data);
     } catch (error) {
       console.error("Error fetching groups:", error);
@@ -48,6 +57,23 @@ function ActivityDetail() {
       console.error("Error fetching activity details:", error);
     } finally {
       setLoading(false);
+    }
+  };
+  
+
+  const joinGroup = async (groupId: string) => {
+    if (!session?.user?.id) {
+      toast.error("You must be logged in to join a group.");
+      return;
+    }
+    try {
+      const payload = { groupId, userId: session.user.id };
+      await axios.patch('/api/group/join', payload);
+      toast.success("Successfully joined the group!");
+      setIsGroupModalOpen(false);
+    } catch (error) {
+      console.error("Error joining group:", error);
+      toast.error("Failed to join the group.");
     }
   };
 
@@ -89,7 +115,7 @@ function ActivityDetail() {
       // alert("Activity created successfully!");
       setIsModalOpen(false);
       // Reload data
-      const response = await axios.get("/api/group");
+      const response = await axios.get(`/api/group/activity/${id}`);
       setGroups(response.data);
     } catch (error) {
       console.error("Error creating group:", error);
@@ -160,21 +186,37 @@ function ActivityDetail() {
               groups.map((group) => (
                 <div
                   key={group.id}
-                  className="bg-white p-4 rounded-lg shadow-md border w-48 text-center py-10"
+                  className="bg-white p-4 rounded-lg shadow-md border w-48 text-center py-10 cursor-pointer"
+                  onClick={() => {
+                    setSelectedGroup(group);
+                    setIsGroupModalOpen(true);
+                  }}
                 >
                   <h3 className="text-lg font-bold text-gray-800">{group.groupName}</h3>
                   <p className="text-sm text-gray-600">
-                    {new Date(group.date).toLocaleDateString()}
+                    {`${format(group.date, "eee d MMM", { locale: th })}`}
+                    <br />
+                    {`เวลา ${group.startTime} - ${group.endTime}`}
                   </p>
                 </div>
               ))
             ) : (
-              <div className="text-gray-600">No groups available.</div>
+              <div className="text-gray-600">ยังไม่มีกลุ่ม</div>
             )}
           </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
       </div>
+
+      {selectedGroup && (
+        <GroupJoinModal
+          group={selectedGroup}
+          isOpen={isGroupModalOpen}
+          onClose={() => setIsGroupModalOpen(false)}
+          onJoin={joinGroup}
+        />
+      )}
+
       <CreateGroupModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

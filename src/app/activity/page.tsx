@@ -130,7 +130,7 @@ function ActivityPage() {
                         </svg>
                       </button>
                     </div>
-                    <div className="absolute bottom-0 right-0 bg-gray-800 text-white px-2 py-1 m-2 rounded-md text-xs">1 group
+                    <div className="absolute bottom-0 right-0 bg-gray-800 text-white px-2 py-1 m-2 rounded-md text-xs">{item.activityGroup.length} group
                     </div>
                 </div>
                 <div className="p-4">
