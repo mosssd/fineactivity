@@ -38,6 +38,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         postedBy: {
           connect: { id: userId }
         },
+        listUserJoin: [userId],
       },
     });
 
@@ -48,20 +49,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 }
 
-//ดึงกิจกรรมทั้งหมด
+//ดึงกลุ่มทั้งหมด
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const activities = await prisma.activity.findMany(
-      {
+    const groups = await prisma.group.findMany({
       include: {
+        activityBy: true,
         postedBy: true,
       },
-    }
-  );
-
-    return NextResponse.json(activities);
+    });
+    // console.log("groups",groups);
+    return NextResponse.json(groups);
   } catch (error) {
-    console.error("Error fetching activities:", error);
+    console.error("Error fetching groups:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

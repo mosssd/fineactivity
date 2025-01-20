@@ -5,9 +5,10 @@ const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest ,{ params }: { params: { id: string }}): Promise<NextResponse> {
   try {
+      const { id } = await params
       const category = await prisma.category.findUnique(
         {
-          where: { id: params.id },
+          where: { id: id },
         }
     );
       if (!category) {

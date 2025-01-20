@@ -31,16 +31,16 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
   });
   const [categoriesOptions, setCategoriesOptions] = useState<any[]>([]);
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get("/api/activitycategory");
-        setCategoriesOptions(response.data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get("/api/activitycategory");
+      setCategoriesOptions(response.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchCategories();
   }, []);
 

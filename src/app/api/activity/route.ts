@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../auth/[...nextauth]/route'
 
 const prisma = new PrismaClient();
 
@@ -20,12 +21,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body: CreateActivityRequest = await request.json();
     const { activityName, imageMain, imageDetail , description, address, userId, categories, contact} = body;
+    const session = await getServerSession(authOptions);
+    console.log("sesssjaa",session);
 
     // ตรวจสอบข้อมูลเบื้องต้น
     if (!activityName || !description || !imageMain) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
-    console.log("xxxxx",body);
+    // console.log("xxxxx",body);
     // สร้างกิจกรรมใหม่ในฐานข้อมูล
     const newActivity = await prisma.activity.create({
       data: {
@@ -64,6 +67,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       {
       include: {
         postedBy: true,
+        activityGroup: true,
       },
     }
   );

@@ -6,25 +6,25 @@ const prisma = new PrismaClient();
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
   try {
     const body = await request.json();
-    const { groupId, userId } = body;
+    const { eventId, userId } = body;
 
     // ตรวจสอบข้อมูลเบื้องต้น
-    if (!groupId || !userId) {
+    if (!eventId || !userId) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     // ตรวจสอบว่ากลุ่มมีอยู่จริงหรือไม่
-    const group = await prisma.group.findUnique({
-      where: { id: groupId },
+    const event = await prisma.event.findUnique({
+      where: { id: eventId },
     });
 
-    if (!group) {
-      return NextResponse.json({ error: "Group not found" }, { status: 404 });
+    if (!event) {
+      return NextResponse.json({ error: "event not found" }, { status: 404 });
     }
 
     // ตรวจสอบว่าผู้ใช้อยู่ในกลุ่มแล้วหรือไม่
-    if (group.listUserJoin.includes(userId)) {
-      return NextResponse.json({ error: "User already joined the group" }, { status: 400 });
+    if (event.listUserJoin.includes(userId)) {
+      return NextResponse.json({ error: "User already joined the event" }, { status: 400 });
     }
 
     // ตรวจสอบว่าผู้ใช้มีอยู่ในระบบหรือไม่
@@ -36,10 +36,10 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // เพิ่ม userId ใน listUserJoin ของกลุ่ม และ groupId ใน listofGroup ของผู้ใช้
+    // เพิ่ม userId ใน listUserJoin ของกลุ่ม และ eventId ใน listofGroup ของผู้ใช้
     const [updatedGroup, updatedUser] = await prisma.$transaction([
-      prisma.group.update({
-        where: { id: groupId },
+      prisma.event.update({
+        where: { id: eventId },
         data: {
           listUserJoin: {
             push: userId, // เพิ่ม userId ใน array listUserJoin
@@ -49,8 +49,8 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       prisma.user.update({
         where: { id: userId },
         data: {
-          listofGroup: {
-            push: groupId, // เพิ่ม groupId ใน array listofGroup
+          listofEvent: {
+            push: eventId, // เพิ่ม eventId ใน array listofEvent
           },
         },
       }),
@@ -58,14 +58,14 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json(
       {
-        message: "User joined the group successfully",
+        message: "User joined the event successfully",
         updatedGroup,
         updatedUser,
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error joining group:", error);
+    console.error("Error joining event:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
