@@ -32,6 +32,7 @@ function ActivityPage() {
     try {
       const response = await axios.get('/api/activity');
       setData(response.data);
+      fetchCategories();
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -41,7 +42,7 @@ function ActivityPage() {
 
   useEffect(() => {
     updateSession(); 
-    fetchCategories();
+    // fetchCategories();
     fetchData();
   }, []); 
 
@@ -134,7 +135,9 @@ function ActivityPage() {
                     </div>
                 </div>
                 <div className="p-4">
-                    <div className="text-lg font-medium text-gray-800 mb-2">{item.activityName}</div>
+                <div className="text-base font-medium text-gray-800 mb-2 min-h-[3rem] line-clamp-2 ">
+                  {item.activityName}
+                </div>
                     {/* <p className="text-gray-500 text-sm overflow-hidden text-ellipsis line-clamp-1">{item.description}</p> */}
                     <div className="text-gray-500 text-sm overflow-hidden text-ellipsis line-clamp-1">
                       {item.categories.map((id: string) => categoriesMap[id]).join(", ")}

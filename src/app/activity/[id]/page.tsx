@@ -21,11 +21,13 @@ interface Activity {
 
 interface Group {
   id: string;
+  userId: string;
   groupName: string;
   description: string;
   date: Date;
   startTime: string;
   endTime: string;
+  listUserJoin: string[];
 }
 
 function ActivityDetail() {
@@ -140,7 +142,7 @@ function ActivityDetail() {
     <div>
       <Nav />
       <div className="container mx-auto mt-24 px-10 md:px-20">
-        <h1 className="text-3xl font-bold text-gray-800 my-4 ">{activity.activityName}</h1>
+        <h1 className="text-3xl font-bold text-gray-800 my-4 break-words ">{activity.activityName}</h1>
         <div className="bg-slate-200 overflow-hidden flex flex-col md:flex-row">
           <div className="md:w-1/2 p-6">
             {/* <h1 className="text-3xl font-bold text-gray-800 mb-4">{activity.activityName}</h1> */}
@@ -182,14 +184,24 @@ function ActivityDetail() {
         </div>
         <ScrollArea className="w-full max-w-5xl rounded-md border">
           <div className="flex w-max space-x-4 p-4">
-            {groups.length > 0 ? (
-              groups.map((group) => (
+          {groups.length > 0 ? (
+            groups.map((group) => {
+              const isGroupCreator = session?.user?.id === group.userId; // เช็คว่า user เป็นคนสร้างกลุ่ม
+              const isGroupMember = session?.user?.id ? group.listUserJoin?.includes(session.user.id) : false; // เช็คว่า user อยู่ในกลุ่ม
+
+              return (
                 <div
                   key={group.id}
                   className="bg-white p-4 rounded-lg shadow-md border w-48 text-center py-10 cursor-pointer"
                   onClick={() => {
-                    setSelectedGroup(group);
-                    setIsGroupModalOpen(true);
+                    if (isGroupCreator || isGroupMember) {
+                      // เปลี่ยนเส้นทางไปยังหน้า chat ของกลุ่ม
+                      window.location.href = `/group/${group.id}`;
+                    } else {
+                      // เปิด GroupJoinModal
+                      setSelectedGroup(group);
+                      setIsGroupModalOpen(true);
+                    }
                   }}
                 >
                   <h3 className="text-lg font-bold text-gray-800">{group.groupName}</h3>
@@ -199,10 +211,11 @@ function ActivityDetail() {
                     {`เวลา ${group.startTime} - ${group.endTime}`}
                   </p>
                 </div>
-              ))
-            ) : (
-              <div className="text-gray-600">ยังไม่มีกลุ่ม</div>
-            )}
+              );
+            })
+          ) : (
+            <div className="text-gray-600">ยังไม่มีกลุ่ม</div>
+          )}
           </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>

@@ -54,7 +54,7 @@ const GroupChatPage = () => {
   const [isGroupValid, setIsGroupValid] = useState<boolean | null>(null);
   const validateGroupId = async () => {
     try {
-      const response = await axios.get(`/api/group/${groupId}/validate`);
+      const response = await axios.get(`/api/event/${groupId}/validate`);
       setIsGroupValid(response.data.valid); // สมมติ API ส่ง `valid` กลับมา
     } catch (error) {
       console.error("Error validating groupId:", error);
@@ -66,7 +66,7 @@ const GroupChatPage = () => {
   const fetchGroupAndUsers = async () => {
     try {
       // ดึงข้อมูลกลุ่ม (รวม listUserJoin)
-      const { data: groupData } = await axios.get(`/api/group/${groupId}`);
+      const { data: groupData } = await axios.get(`/api/event/${groupId}`);
       // setListUserJoin(groupData.listUserJoin);
 
       // ดึงข้อมูลผู้ใช้จาก MongoDB โดยใช้ listUserJoin
@@ -148,7 +148,7 @@ const GroupChatPage = () => {
     <div>
       <Nav />
       <div className="container mx-auto mt-24 px-4 md:px-20">
-        <h1 className="text-2xl font-bold mb-4">Group Chat</h1>
+        <h1 className="text-2xl font-bold mb-4">Chat</h1>
         <div className="border rounded-md p-4 h-[60vh] overflow-y-auto bg-gray-50">
         {messages?.map((msg) => {
             const messageDate = formatDate(msg.creatAt);

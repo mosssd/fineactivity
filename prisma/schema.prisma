@@ -22,6 +22,7 @@ model User {
   savedActivities  String[] // ความสัมพันธ์กับ SavedActivity
   emailVerified DateTime?
   listofGroup String[]
+  listofEvent String[]
   accounts   Account[]
   sessions   Session[]
 }

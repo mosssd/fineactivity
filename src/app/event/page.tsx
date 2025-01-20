@@ -95,8 +95,14 @@ function eventPage() {
   }
 
   if (loading) {
-    return <div className="text-center mt-20">Loading...</div>;
+    return (
+      <div>
+        <Nav />
+        <div className="text-center mt-24">Loading...</div>
+      </div>
+      )
   }
+  
   return (
     <div>
       <Nav />
@@ -125,6 +131,7 @@ function eventPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-10 md:px-20">
         {filteredData.map((item,index) => (
           <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden">
+            <Link href={`/event/${item.id}`}>
               <div className="relative z-10">
                   <img className="w-[600px] h-[200px] object-cover" src={item.image}/>
                   <div className="absolute top-4 right-4 bg-white rounded-full w-8 h-8 flex items-center justify-center">
@@ -136,15 +143,20 @@ function eventPage() {
                   </div>
               </div>
               <div className="p-4">
-                  <div key="index" className="text-lg font-medium text-gray-800 mb-2">{item.eventName}</div>
-                  <div className="text-gray-500 text-sm overflow-hidden text-ellipsis line-clamp-1">
+                  <div className="text-base font-medium text-gray-800 mb-2 min-h-[3rem] line-clamp-2 ">
+                    {item.eventName}
+                  </div>
+                  <div className="text-gray-500 text-base overflow-hidden text-ellipsis line-clamp-1">
                       {item.categories.map((id: string) => categoriesMap[id]).join(", ")}
                     </div>
-                    <div className="text-blue-700 text-sm font-medium">{formatDateRange(item.startDate,item.endDate,item.startTime)}</div>
-                  <div className="flex items-center justify-end mt-2 mb-2">
-                    <button className=' text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-3xl text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'>เข้าร่วม</button>
-                  </div>
+                    <div className="text-blue-700 text-base font-medium mt-1 mb-2">{formatDateRange(item.startDate,item.endDate,item.startTime)}</div>
+                    <div className="flex items-center justify-end ">
+                      <div className="text-gray-500 text-sm font-medium">
+                        จำนวนสมาชิก: {item.listUserJoin.length} คน
+                      </div>
+                    </div>
               </div>
+            </Link>
           </div>
         ))}
         </div>
