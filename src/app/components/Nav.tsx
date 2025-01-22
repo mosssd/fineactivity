@@ -84,11 +84,15 @@ function Nav() {
             onClick={() => setIsDropdownOpen((prev) => !prev)}
             className="focus:outline-none"
           >
-            <img
-              src={session.user?.image || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}
-              alt="User Profile"
-              className="w-10 h-10 rounded-full"
-            />
+            {session.user?.image ? (
+              <img
+                src={session.user.image}
+                alt="Profile"
+                className="w-10 h-10 rounded-full"
+              />
+            ) : (
+              <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse" />
+            )}
           </button>
       
           {/* Dropdown Menu */}
