@@ -7,9 +7,13 @@ import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import UserModal from "../../components/userModal";
 import Link from "next/link";
-
+import EditGroupModal from "../../components/EditGroupModal"; // Import EditGroupModal
+import DeleteGroupPopup from "../../components/delGroupModal"; // Import DeleteGroupPopup
+import { useSession } from "next-auth/react";
+import { FaEdit, FaTrash } from "react-icons/fa";
 interface Group {
   id: string;
+  activityId: string;
   groupName: string;
   description: string;
   date: Date;
@@ -27,11 +31,15 @@ function GroupDetail() {
   const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-  const [usersMap, setUsersMap] = useState<Map<string, any>>(new Map()); // Store user data here
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State for EditGroupModal
+  const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
+  const [usersMap, setUsersMap] = useState<Map<string, any>>(new Map());
   const { groupId } = useParams() as { groupId: string };
-
+  const { data: session, update: updateSession} = useSession(); 
+  const userId = session?.user?.id;
   // Fetch group details
   useEffect(() => {
+    updateSession();
     if (groupId) {
       const fetchGroupDetails = async () => {
         try {
@@ -59,6 +67,31 @@ function GroupDetail() {
     }
   }, [groupId]);
 
+  const handleEditSubmit = async (updatedGroup: any) => {
+    try {
+      await axios.patch(`/api/group/${groupId}`, updatedGroup);
+      setGroup((prevGroup) => ({
+        ...prevGroup,
+        ...updatedGroup,
+        date: new Date(updatedGroup.date),
+      } as Group));
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error("Error updating group:", error);
+    }
+  };
+
+  const handleDeleteGroup = async () => {
+    try {
+      await axios.delete(`/api/group/${groupId}`);
+      alert("กลุ่มถูกลบเรียบร้อยแล้ว");
+      window.location.href = `/activity/${group?.activityId}`; // Redirect to homepage or another page
+    } catch (error) {
+      console.error("Error deleting group:", error);
+      alert("เกิดข้อผิดพลาดในการลบกลุ่ม");
+    }
+  };
+
   if (loading) {
     return (
       <div>
@@ -74,6 +107,10 @@ function GroupDetail() {
 
   const openUserModal = () => {
     setIsUserModalOpen(true);
+  };
+
+  const openEditModal = () => {
+    setIsEditModalOpen(true);
   };
 
   return (
@@ -94,7 +131,7 @@ function GroupDetail() {
                 เวลา: {group.startTime} - {group.endTime}
               </div>
               <div className="text-gray-800 text-base mb-1">
-                หัวหน้ากลุ่ม: 
+                หัวหน้ากลุ่ม:
                 <img
                   src={group.postedBy.image || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
                   alt={`${group.postedBy.name}'s avatar`}
@@ -117,16 +154,55 @@ function GroupDetail() {
             >
               ไปที่แชทของกลุ่ม
             </Link>
+            {/* แสดงปุ่ม Edit เฉพาะเจ้าของกลุ่ม */}
+            {userId === group.postedBy.id && (
+              <>
+                <button
+                  onClick={openEditModal}
+                  className="bg-yellow-500 text-white py-2 px-4 rounded-md shadow-md hover:bg-yellow-600 transition duration-300 m-2"
+                >
+                  แก้ไขกลุ่ม
+                </button>
+                <button
+                  onClick={() => setIsDeletePopupOpen(true)}
+                  className="bg-red-500 text-white py-2 px-4 rounded-md shadow-md hover:bg-red-600 transition duration-300 m-2"
+                >
+                  ลบกลุ่ม
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Pass userMap and selectedUserIds to UserModal */}
       <UserModal
         isOpen={isUserModalOpen}
         onClose={() => setIsUserModalOpen(false)}
         usersMap={usersMap}
         selectedUserIds={group.listUserJoin}
+      />
+
+      {/* Edit Group Modal */}
+      <EditGroupModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSubmit={handleEditSubmit}
+        defaultValues={{
+          groupName: group.groupName,
+          description: group.description,
+          date: new Date(group.date),
+          startTime: group.startTime,
+          endTime: group.endTime,
+        }}
+      />
+      
+      <DeleteGroupPopup
+        isOpen={isDeletePopupOpen}
+        onClose={() => setIsDeletePopupOpen(false)}
+        onConfirm={() => {
+          handleDeleteGroup();
+          setIsDeletePopupOpen(false);
+        }}
       />
     </div>
   );
