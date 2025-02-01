@@ -32,7 +32,8 @@ export async function GET(request: NextRequest, { params }: { params: { userId: 
     });
     const orderedEvents = user.savedEvents.map(eventId => 
       events.find(event => event.id === eventId)
-    ).filter(event => event !== undefined); // กรองค่า null ออก
+    ).filter(event => event !== undefined) // กรองค่า null ออก
+    .reverse();
 
     return NextResponse.json(orderedEvents);
   } catch (error) {

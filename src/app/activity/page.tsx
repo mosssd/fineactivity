@@ -166,9 +166,9 @@ const fetchSavedActivities = async () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-10 md:px-20">
         {filteredData.map((item) => (
           <Link href={`/activity/${item.id}`} key={item.id}>
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
                 <div className="relative z-10">
-                  <img className="w-[600px] h-[200px] object-cover" 
+                  <img className="w-[320px] h-[180px] object-cover" 
                     src={item.imageMain || "https://via.placeholder.com/600x360"}
                     alt={item.activityName}
                   />
