@@ -53,7 +53,7 @@ model Group {
   postedBy    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   activityId  String     @db.ObjectId
   activityBy  Activity   @relation(fields: [activityId], references: [id], onDelete: Cascade)
-  date   DateTime
+  date   DateTime?
   startTime  String @default("00:00")
   endTime    String @default("00:00")
   listUserJoin String[]

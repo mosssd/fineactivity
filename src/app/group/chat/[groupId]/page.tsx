@@ -112,9 +112,15 @@ const GroupChatPage = () => {
 
   useEffect(() => {
     updateSession(); 
-    if (groupId) {
-      validateGroupId();
-    }
+    const validate = async () => {
+      try {
+        await validateGroupId();
+      } catch (error) {
+        console.error("Validation error:", error);
+        setIsGroupValid(false);
+      }
+    };
+    validate();
     fetchGroupAndUsers();
   }, []); 
 
@@ -129,6 +135,15 @@ const GroupChatPage = () => {
       <div>
         <Nav />
         <div className="text-center mt-20">Loading chat...</div>
+      </div>
+    );
+  }
+
+  if (isGroupValid === null) {
+    return (
+      <div>
+        <Nav />
+        <div className="text-center mt-20">Validating group ID...</div>
       </div>
     );
   }

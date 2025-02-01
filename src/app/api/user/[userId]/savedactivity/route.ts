@@ -4,13 +4,16 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-//ดึงรายละเอียดuser
+//ดึงรายละเอียดuser แค่ SavedActivity
 export async function GET(request: NextRequest, { params }: { params: { userId: string } }): Promise<NextResponse> {
   try {
     const { userId } = await params
     const user = await prisma.user.findUnique(
       {
         where: { id: userId },
+        select: {
+          savedActivities: true,
+        },
         // include: { postedBy: true },
       }
   );
