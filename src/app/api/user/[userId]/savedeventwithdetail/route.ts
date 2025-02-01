@@ -4,20 +4,37 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-//ดึงรายละเอียดuser
+//ดึงรายละเอียดuser แค่ SavedEvent with detail
+
 export async function GET(request: NextRequest, { params }: { params: { userId: string } }): Promise<NextResponse> {
   try {
     const { userId } = await params
     const user = await prisma.user.findUnique(
       {
         where: { id: userId },
+        select: {
+          savedEvents: true,
+        },
         // include: { postedBy: true },
       }
   );
     if (!user) {
       return NextResponse.json({ error: "user not found" }, { status: 404 });
     }
-    return NextResponse.json(user);
+
+    const events = await prisma.event.findMany({
+      where: {
+        id: { in: user.savedEvents }, // ดึงข้อมูลที่ id ตรงกับใน savedevents
+      },
+      include: {
+        postedBy: true,
+      },
+    });
+    const orderedEvents = user.savedEvents.map(eventId => 
+      events.find(event => event.id === eventId)
+    ).filter(event => event !== undefined); // กรองค่า null ออก
+
+    return NextResponse.json(orderedEvents);
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

@@ -9,7 +9,7 @@ interface CreateGroupRequest {
   description: string
   activityId: string
   userId: string
-  date: Date
+  date?: Date | null
   startTime: string
   endTime: string
 }
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       data: {
         groupName,
         description,
-        date,
+        date: date? date : null,
         startTime,
         endTime,
         activityBy: {
@@ -42,6 +42,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
     });
 
+    //เพิ่ม groupId ใน listofGroup ของผู้ใช้
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        listofGroup: {
+          push: newgroup.id,
+        },
+      },
+    });
+  
     return NextResponse.json({ message: "group created", newgroup }, { status: 201 });
   } catch (error) {
     console.error("Error creating group:", error);

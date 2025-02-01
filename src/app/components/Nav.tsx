@@ -45,7 +45,7 @@ function Nav() {
   return (
     <nav className="fixed top-0 w-full z-50">
       <div className="p-5 flex bg-white justify-between items-center border-b-2 border-gray-300">
-        <a href="#" id="home" className="text-2xl flex justify-self-center ml-10">
+        <a href="/" id="home" className="text-2xl flex justify-self-center ml-10">
           <p className="text-black font-mono font-bold">FINE</p>
           <p className="text-orange-200 font-mono font-light">ACTIVITY</p>
         </a>
@@ -84,11 +84,15 @@ function Nav() {
             onClick={() => setIsDropdownOpen((prev) => !prev)}
             className="focus:outline-none"
           >
-            <img
-              src={session.user?.image || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}
-              alt="User Profile"
-              className="w-10 h-10 rounded-full"
-            />
+            {session.user?.image ? (
+              <img
+                src={session.user.image}
+                alt="Profile"
+                className="w-10 h-10 rounded-full"
+              />
+            ) : (
+              <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse" />
+            )}
           </button>
       
           {/* Dropdown Menu */}

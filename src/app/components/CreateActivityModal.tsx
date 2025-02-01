@@ -78,7 +78,7 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-lg">
+      <div className="bg-white rounded-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">สร้างกิจกรรม</h2>
         <div className="space-y-6">
           <div>
@@ -157,6 +157,7 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
               onRemove={(selectedList) => handleCategoryChange(selectedList, null)}
               placeholder="เลือกหมวดหมู่"
               className="mt-2"
+              
             />
           </div>
 

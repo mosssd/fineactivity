@@ -1,9 +1,9 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react'
-import Nav from '../components/Nav';
+import Nav from '../../components/Nav';
 import axios from 'axios';
-import CreateEventModal from "../components/CreateEventModal";
+import CreateEventModal from "../../components/CreateEventModal";
 import Link from 'next/link';
 import { format, isSameDay} from 'date-fns'
 import { th } from 'date-fns/locale'
@@ -35,7 +35,7 @@ function eventPage() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('/api/event');
+      const response = await axios.get(`/api/user/${userId}/recommend-events`);
       setData(response.data);
       fetchCategories();
     } catch (error) {
@@ -78,13 +78,14 @@ function eventPage() {
 
   useEffect(() => {
     updateSession();
-    fetchData();
+    // fetchData();
 
   }, []); 
 
     useEffect(() => {
       if (session?.user?.id) {
         fetchSavedEvents();
+        fetchData();
       }
     }, [session]);
 
@@ -146,16 +147,10 @@ function eventPage() {
   return (
     <div>
       <Nav />
-      <div className="container mx-auto mt-24 max-w-screen-xl ">
       <div className="pt-6 mt-20">
         <div className="flex justify-between items-center px-10 md:px-20">
           <div className="text-3xl font-bold">อีเว้นต์</div>
           <div className="flex space-x-4">
-          <Link href="/event/recommend">
-        <button className="bg-green-500 text-white px-4 py-2 rounded-md">
-          อีเว้นต์แนะนำ
-        </button>
-      </Link>
             <button
               onClick={() => setIsModalOpen(true)}
               className="bg-blue-500 text-white px-4 py-2 rounded-md"
@@ -172,7 +167,7 @@ function eventPage() {
           </div>
         </div>
       </div>
-
+      {filteredData.length != 0 ?
       <div className="container mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-10 md:px-20">
         {filteredData.map((item) => (
@@ -197,10 +192,10 @@ function eventPage() {
                   <div className="text-base font-medium text-gray-800 mb-2 min-h-[3rem] line-clamp-2 ">
                     {item.eventName}
                   </div>
-                  <div className="text-gray-500 text-sm overflow-hidden text-ellipsis line-clamp-1">
+                  <div className="text-gray-500 text-base overflow-hidden text-ellipsis line-clamp-1">
                       {item.categories.map((id: string) => categoriesMap[id]).join(", ")}
                     </div>
-                    <div className="text-blue-700 text-sm font-medium mt-1 mb-2">{formatDateRange(item.startDate,item.endDate,item.startTime)}</div>
+                    <div className="text-blue-700 text-base font-medium mt-1 mb-2">{formatDateRange(item.startDate,item.endDate,item.startTime)}</div>
                     <div className="flex items-center justify-end ">
                       <div className="text-gray-500 text-sm font-medium">
                         จำนวนสมาชิก: {item.listUserJoin.length} คน
@@ -212,12 +207,12 @@ function eventPage() {
         ))}
         </div>
       </div>
+      : <div className="text-center mt-24 text-xl text-yellow-600">คุณยังไม่มีอีเว้นท์ที่บันทึกไว้ ลองบันทึกอีเว้นท์ดูสิ!!</div>}
       <CreateEventModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleCreateEvent}
       />
-    </div>
     </div>
     
   )

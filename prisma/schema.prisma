@@ -20,11 +20,13 @@ model User {
   EventPosted  Event[]
   GroupPosted  Group[]
   savedActivities  String[] // ความสัมพันธ์กับ SavedActivity
+  savedEvents  String[] // ความสัมพันธ์กับ SavedEvent
   emailVerified DateTime?
   listofGroup String[]
   listofEvent String[]
   accounts   Account[]
   sessions   Session[]
+  reviews    Review[]
 }
 
 model Activity {
@@ -35,10 +37,11 @@ model Activity {
   description String
   address     String?
   userId      String     @db.ObjectId
-  postedBy    User       @relation(fields: [userId], references: [id])
+  postedBy    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   categories  String[]
   contact    String
   activityGroup Group[]
+  reviews    Review[]
   createdAt  DateTime @default(now()) @map("created_at")
 }
 
@@ -47,10 +50,10 @@ model Group {
   groupName   String
   description String
   userId      String     @db.ObjectId
-  postedBy    User       @relation(fields: [userId], references: [id])
+  postedBy    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   activityId  String     @db.ObjectId
-  activityBy  Activity   @relation(fields: [activityId], references: [id])
-  date   DateTime
+  activityBy  Activity   @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  date   DateTime?
   startTime  String @default("00:00")
   endTime    String @default("00:00")
   listUserJoin String[]
@@ -63,7 +66,7 @@ model Event {
   description String
   address     String?
   userId      String     @db.ObjectId
-  postedBy    User       @relation(fields: [userId], references: [id])
+  postedBy    User       @relation(fields: [userId], references: [id] ,onDelete: Cascade)
   categories  String[]
   contact    String
   startDate  DateTime 
@@ -77,6 +80,17 @@ model Event {
 model Category {
   id      String   @id @default(auto()) @map("_id") @db.ObjectId
   name    String
+}
+
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  rating    Int
+  comment   String
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id] ,onDelete: Cascade)
+  activityId String  @db.ObjectId
+  activity  Activity @relation(fields: [activityId], references: [id] ,onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
 }
 
 model Account {

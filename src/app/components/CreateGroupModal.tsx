@@ -39,7 +39,10 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
   };
 
   const handleSubmit = () => {
-    onSubmit({ ...form });
+    const { date, ...rest } = form;
+    const payload = date ? { ...rest, date } : { ...rest }; // ถ้า date เป็น null จะไม่ส่งไป
+
+    onSubmit(payload);
     setForm({
       groupName: "",
       description: "",

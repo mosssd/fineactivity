@@ -26,10 +26,13 @@ const GroupModal: React.FC<GroupModalProps> = ({ group, isOpen, onClose, onJoin 
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
         <h2 className="text-xl font-bold">{group.groupName}</h2>
         <p className="text-gray-700">{group.description}</p>
+        { group.date &&
+          <p className="text-sm text-gray-600">
+            {`${format(group.date, "eee d MMM", { locale: th })}`}
+          </p> 
+        }
         <p className="text-sm text-gray-600">
-          วันที่: {format(group.date, "d MMM yyyy", { locale: th })}
-          <br />
-          เวลา: {group.startTime} - {group.endTime}
+          {`เวลา ${group.startTime} - ${group.endTime}`}
         </p>
         <div className="mt-4 flex justify-end space-x-2">
           <button

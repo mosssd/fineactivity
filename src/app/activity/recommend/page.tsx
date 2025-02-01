@@ -1,9 +1,9 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react'
-import Nav from '../components/Nav';
+import Nav from '../../components/Nav';
 import axios from 'axios';
-import CreateActivityModal from "../components/CreateActivityModal";
+import CreateActivityModal from "../../components/CreateActivityModal";
 import Link from 'next/link';
 
 function ActivityPage() {
@@ -33,7 +33,7 @@ function ActivityPage() {
   const fetchData = async () => {
     try {
       console.log("Fetching data...");
-      const response = await axios.get('/api/activity');
+      const response = await axios.get(`/api/user/${userId}/recommend-activities`);
       setData(response.data);
       fetchCategories();
     } catch (error) {
@@ -78,13 +78,14 @@ const fetchSavedActivities = async () => {
   useEffect(() => {
     updateSession(); 
     // fetchCategories();
-    fetchData();
+    // fetchData();
     // fetchSavedActivities();
   }, []); 
 
   useEffect(() => {
     if (session?.user?.id) {
       fetchSavedActivities();
+      fetchData();
     }
   }, [session]);
   
@@ -135,22 +136,10 @@ const fetchSavedActivities = async () => {
   return (
     <div>
       <Nav />
-      <div className="container mx-auto mt-24 max-w-screen-xl ">
       <div className="pt-6 mt-20">
         <div className="flex justify-between items-center px-10 md:px-20">
-          <div className="text-3xl font-bold">กิจกรรม</div>
-            <div className="flex space-x-4">
-            <Link href="/activity/recommend">
-              <button className="bg-green-500 text-white px-4 py-2 rounded-md">
-                กิจกรรมแนะนำ
-              </button>
-            </Link>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-blue-500 text-white px-4 py-2 rounded-md"
-            >
-              สร้างกิจกรรม
-            </button>
+          <div className="text-3xl font-bold">กิจกรรมแนะนำ</div>
+          <div className="flex space-x-4">
             <input
               type="text"
               placeholder="ค้นหา..."
@@ -161,7 +150,7 @@ const fetchSavedActivities = async () => {
           </div>
         </div>
       </div>
-      
+      {filteredData.length != 0 ? 
       <div className="container mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-10 md:px-20">
         {filteredData.map((item) => (
@@ -208,12 +197,12 @@ const fetchSavedActivities = async () => {
         ))}
         </div>
       </div>
+      : <div className="text-center mt-24 text-xl text-yellow-600">คุณยังไม่มีกิจกรรมที่บันทึกไว้ ลองบันทึกกิจกรรมดูสิ!!</div>}
       <CreateActivityModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleCreateActivity}
       />
-    </div>
     </div>
   )
 }
