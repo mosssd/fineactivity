@@ -26,7 +26,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const { eventName, image, description, location, userId, categories, contact, startDate, endDate, startTime, endTime} = body;
 
     // ตรวจสอบข้อมูลเบื้องต้น
-    if (!eventName || !description || !image) {
+    if (!eventName || !description || !image || !startDate || !endDate ) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
     console.log("xxxxx",body);

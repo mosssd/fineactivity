@@ -124,10 +124,12 @@ function eventPage() {
     }
   };
   
-  function formatDateRange(startDate :Date, endDate :Date, startTime :string) {
+  function formatDateRange(startDate: Date, endDate: Date, startTime?: string) {
     if (isSameDay(startDate, endDate)) {
       // กรณีวันเดียวกัน
-      return `${format(startDate, "eee d MMM", { locale: th })} เวลา ${startTime}`;
+      return startTime
+        ? `${format(startDate, "eee d MMM", { locale: th })} เวลา ${startTime}`
+        : `${format(startDate, "eee d MMM", { locale: th })}`;
     } else {
       // กรณีคนละวัน
       return `${format(startDate, "d MMM", { locale: th })} - ${format(endDate, "d MMM", { locale: th })}`;

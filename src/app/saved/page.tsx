@@ -188,7 +188,8 @@ const fetchSavedActivities = async () => {
         <div className="container mx-auto py-6 flex justify-center">
           <ScrollArea className="w-full max-w-6xl rounded-md border">
             <div className="flex w-max space-x-4 p-4">
-              {data.map((item) => (
+            {data.length > 0 ? (
+              data.map((item) => (
                 <Link href={`/activity/${item.id}`} key={item.id}>
                   <div className="w-64 bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
                     <div className="relative z-10">
@@ -233,7 +234,12 @@ const fetchSavedActivities = async () => {
                     </div>
                   </div>
                 </Link>
-              ))}
+              ))
+            ) : (
+              <div className="w-full text-center text-gray-500 py-ภ">
+                ไม่มีกิจกรรมที่บันทึกไว้
+              </div>
+            )}
             </div>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
@@ -257,7 +263,8 @@ const fetchSavedActivities = async () => {
           <div className="container mx-auto py-6 flex justify-center">
             <ScrollArea className="w-full max-w-6xl rounded-md border">
               <div className="flex w-max space-x-4 p-4">
-                {dataEvent.map((item) => (
+              {dataEvent.length > 0 ? (
+                dataEvent.map((item) => (
                   <Link href={`/event/${item.id}`} key={item.id}>
                     <div className="w-64 bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
                       <div className="relative z-10">
@@ -291,7 +298,12 @@ const fetchSavedActivities = async () => {
                       </div>
                     </div>
                   </Link>
-                ))}
+                ))
+              ) : (
+                <div className="w-full text-center text-gray-500 py-ภ">
+                  ไม่มีอีเว้นต์ที่บันทึกไว้
+                </div>
+              )}
               </div>
               <ScrollBar orientation="horizontal" />
             </ScrollArea>

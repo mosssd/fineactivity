@@ -30,19 +30,24 @@ interface Event {
   listUserJoin: string[];
 }
 
-function formatDateRange(startDate: Date, endDate: Date, startTime: string, endTime?: string) {
+function formatDateRange(startDate: Date, endDate: Date, startTime?: string, endTime?: string) {
   if (isSameDay(startDate, endDate)) {
     // กรณีวันเดียวกัน
-    return endTime
-      ? `${format(startDate, "EEEEที่ d MMMM yyyy", { locale: th })} เวลา ${startTime} - ${endTime}`
-      : `${format(startDate, "EEEEที่ d MMMM yyyy", { locale: th })} เวลา ${startTime}`;
+    return startTime
+      ? endTime
+        ? `${format(startDate, "EEEEที่ d MMMM yyyy", { locale: th })} เวลา ${startTime} - ${endTime}`
+        : `${format(startDate, "EEEEที่ d MMMM yyyy", { locale: th })} เวลา ${startTime}`
+      : `${format(startDate, "EEEEที่ d MMMM yyyy", { locale: th })}`;
   } else {
     // กรณีคนละวัน
-    return endTime
-      ? `${format(startDate, "d MMM", { locale: th })} - ${format(endDate, "d MMM", { locale: th })} เวลา ${startTime}-${endTime}`
-      : `${format(startDate, "d MMM", { locale: th })} - ${format(endDate, "d MMM", { locale: th })} เวลา ${startTime}`;
+    return startTime
+      ? endTime
+        ? `${format(startDate, "d MMM", { locale: th })} - ${format(endDate, "d MMM", { locale: th })} เวลา ${startTime} - ${endTime}`
+        : `${format(startDate, "d MMM", { locale: th })} - ${format(endDate, "d MMM", { locale: th })} เวลา ${startTime}`
+      : `${format(startDate, "d MMM", { locale: th })} - ${format(endDate, "d MMM", { locale: th })}`;
   }
 }
+
 
 function EventDetail() {
   const [event, setEvent] = useState<Event | null>(null);
@@ -142,7 +147,7 @@ function EventDetail() {
         <div className='flex flex-initial items-center'>
           <h1 className="text-3xl font-bold text-gray-800 mt-4 mr-4 mb-1 break-words">{event.eventName}</h1>
               </div>
-          <div className="my-1">
+          <div className="mt-2 ">
             <p className="text-red-500 text-sm font-semibold">
             <CalendarIcon className="w-6 h-6 inline-block mr-1" />
               {formatDateRange(

@@ -10,7 +10,18 @@ export async function GET(request: NextRequest, { params }: { params: { activity
     const activity = await prisma.activity.findUnique(
       {
         where: { id: params.activityId },
-        include: { postedBy: true },
+        select: {
+          id: true,
+          activityName: true,
+          imageMain: true,
+          imageDetail: true,
+          description: true,
+          categories: true,
+          location: true,
+          contact: true,
+          dayTime: true,
+          address: true,
+        },
       }
   );
     if (!activity) {
