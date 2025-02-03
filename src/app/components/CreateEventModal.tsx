@@ -8,6 +8,9 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { useLoadScript, Autocomplete } from "@react-google-maps/api";
+
+const libraries: ["places"] = ["places"]; // ใช้ Places API
 interface CreateEventModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -19,24 +22,36 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
   onClose,
   onSubmit,
 }) => {
+    const { isLoaded } = useLoadScript({
+      googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+      libraries,
+    });
+
   const [form, setForm] = useState<{
     eventName: string;
     image: string;
     description: string;
     contact: string;
     categories: string[];
+    startTime: string | null;
+    endTime: string | null;
     startDate: Date | null;
     endDate: Date | null;
+    location: string; // ✅ เพิ่มที่อยู่
   }>({
     eventName: "",
     image: "",
     description: "",
     contact: "",
+    location: "", // ✅ เก็บที่อยู่ + พิกัด // ค่าเริ่มต้นของที่อยู่
     categories: [],
     startDate: null,
     endDate: null,
+    startTime: null,
+    endTime: null,
   });
   const [categoriesOptions, setCategoriesOptions] = useState<any[]>([]);
+  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -78,11 +93,37 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
       description: "",
       contact: "",
       categories: [],
+      startTime: null,
+      endTime: null,
       startDate: null,
       endDate: null,
+      location: "", // ✅ เก็บที่อยู่ + พิกัด
     });
   };
 
+    // เมื่อผู้ใช้เลือกที่อยู่จาก Google Maps
+  const handlePlaceSelect = () => {
+    if (autocomplete) {
+      const place = autocomplete.getPlace();
+      if (place.address_components) {
+        let placeName = place.name || ""; // ชื่อสถานที่
+        let province = "";
+  
+        place.address_components.forEach((component) => {
+          if (component.types.includes("administrative_area_level_1")) {
+            province = component.long_name; // ดึงชื่อจังหวัด
+          }
+        });
+  
+        setForm((prev) => ({
+          ...prev,
+          location: `${placeName}, ${province}`, // เก็บเป็น string
+        }));
+      }
+    }
+  };
+
+  if (!isLoaded) return <p>Loading...</p>; 
   if (!isOpen) return null;
 
   return (
@@ -101,6 +142,34 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
               onChange={handleInputChange}
               className="w-full border border-gray-300 rounded-md px-4 py-2 mt-2"
             />
+          </div>
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700">คำอธิบาย</label>
+            <textarea
+              id="description"
+              name="description"
+              placeholder="กรุณากรอกคำอธิบาย"
+              value={form.description}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded-md px-4 py-2 mt-2"
+            />
+          </div>
+
+          {/* Google Places Autocomplete */}
+          <div>
+          <label htmlFor="location" className="block text-sm font-medium text-gray-700">พิกัด</label>
+          <Autocomplete onLoad={setAutocomplete} onPlaceChanged={handlePlaceSelect}>
+            <input
+              type="text"
+              placeholder="กรุณากรอกพิกัด"
+              value={form.location} // ตอนนี้ form.location เป็น string แล้ว
+              onChange={(e) => setForm((prev) => ({
+                ...prev,
+                location: e.target.value // เปลี่ยนแค่ location เป็น string
+              }))}
+              className="w-full border rounded-md px-4 py-2 mt-2"
+            />
+          </Autocomplete>
           </div>
 
           {/* วันที่เริ่มต้น */}
@@ -147,6 +216,42 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
             </Popover>
           </div>
 
+          {/* เวลาเริ่มต้น */}
+          <div>
+            <label
+              htmlFor="starttime"
+              className="block text-sm font-medium text-gray-700"
+            >
+              เวลาเริ่มต้น
+            </label>
+            <input
+              id="starttime"
+              type="time"
+              name="startTime"
+              value={form.startTime || ""}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded-md px-4 py-2 mt-2"
+            />
+          </div>
+
+          {/* เวลาสิ้นสุด */}
+          <div>
+            <label
+              htmlFor="endtime"
+              className="block text-sm font-medium text-gray-700"
+            >
+              เวลาสิ้นสุด
+            </label>
+            <input
+              id="endtime"
+              type="time"
+              name="endTime"
+              value={form.endTime || ""}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded-md px-4 py-2 mt-2"
+            />
+          </div>
+
           <div>
             <label htmlFor="image" className="block text-sm font-medium text-gray-700">อัปโหลดรูปภาพ</label>
             <CldUploadWidget
@@ -171,17 +276,6 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
             </div>
           )}
 
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">คำอธิบาย</label>
-            <textarea
-              id="description"
-              name="description"
-              placeholder="กรุณากรอกคำอธิบาย"
-              value={form.description}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 mt-2"
-            />
-          </div>
 
           <div>
             <label htmlFor="contact" className="block text-sm font-medium text-gray-700">ข้อมูลติดต่อ</label>

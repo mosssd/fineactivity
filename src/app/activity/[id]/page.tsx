@@ -8,18 +8,23 @@ import { ScrollArea,ScrollBar } from "@/components/ui/scroll-area";
 import CreateGroupModal from "../../components/CreateGroupModal";
 import GroupJoinModal from "../../components/GroupJoinModal";
 import { setgroups } from 'node:process';
-import { format } from 'date-fns'
+import { format, set } from 'date-fns'
 import { th } from 'date-fns/locale'
 import { toast } from 'react-toastify';
 import { FaStar } from 'react-icons/fa';
 import CreateReviewModal from "../../components/CreateReviewModal";
 import Image from "next/image";
+import { MapPinIcon, ClockIcon, PhoneIcon, InformationCircleIcon } from "@heroicons/react/24/solid";
+
 interface Activity {
   imageMain?: string;
   activityName: string;
   description: string;
   contact?: string;
   categories?: string[];
+  location?: string;
+  address?: string;
+  dayTime?: string;
 }
 
 interface Group {
@@ -55,6 +60,7 @@ function ActivityDetail() {
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [mapLink, setMapLink] = useState<string | undefined>(undefined);
   const { data: session, update: updateSession} = useSession(); // ดึงข้อมูล session จาก NextAuth
   const { id } = useParams() as { id: string }; 
 
@@ -71,6 +77,7 @@ function ActivityDetail() {
     try {
       const response = await axios.get(`/api/activity/${id}`);
       setActivity(response.data);
+      setMapLink(`https://www.google.com/maps/search/?q=${encodeURIComponent(response.data.location)}`);
     } catch (error) {
       console.error("Error fetching activity details:", error);
     } finally {
@@ -207,14 +214,38 @@ function ActivityDetail() {
   return (
     <div>
       <Nav />
-      <div className="container mx-auto mt-24 px-4 sm:px-8 md:px-16 lg:px-24 max-w-screen-xl">
+      <div className="container mx-auto mt-28 px-4 sm:px-8 md:px-16 lg:px-24 max-w-screen-xl">
         <h1 className="text-3xl font-bold text-gray-800 my-4 break-words ">{activity.activityName}</h1>
-        <div className="bg-slate-200 overflow-hidden flex flex-col md:flex-row">
-          <div className="md:w-1/2 p-6 order-2 md:order-1">
+        <div className="bg-white overflow-hidden flex flex-col md:flex-row">
+          <div className="md:w-1/2 p-4 order-2 md:order-1">
             {/* <h1 className="text-3xl font-bold text-gray-800 mb-4">{activity.activityName}</h1> */}
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">รายละเอียด</h3>
-            <p className="text-gray-600 text-lg mb-6 whitespace-pre-line">{activity.description}</p>
-            <div className="text-gray-800 text-sm mb-4">Contact: {activity.contact || "N/A"}</div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">รายละเอียด</h3>
+            <p className="text-gray-700 text-base mb-4 bg-gray-100 p-4 rounded-md whitespace-pre-line overflow-y-auto max-h-24 leading-relaxed border-2 border-solid">{activity.description}</p>
+            <div className="bg-gray-100 p-4 rounded-md mb-4 border-2 border-solid">
+              <p className="flex items-center text-gray-700">
+                <MapPinIcon className="w-5 h-5 mr-2" />
+                {activity.location ? (
+                  <a
+                    href={mapLink || undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:text-blue-700 underline"
+                  >
+                    {activity.location}
+                  </a>
+                ) : (
+                  <span className="text-gray-500">ไม่ระบุ</span>
+                )}
+              </p>
+              <p className="flex items-center ml-6 text-sm text-gray-700 mb-2">{activity.address}</p>
+              <div className="flex items-center text-gray-700 mb-2">
+                <ClockIcon className="w-5 h-5 mr-2" />
+                <span>{activity.dayTime}</span>
+              </div>
+              <div className="flex items-center text-gray-700">
+                <PhoneIcon className="w-5 h-4 mr-2" />
+                <span>{activity.contact}</span>
+              </div>
             <div className="mt-4">
               {activity.categories && activity.categories.length > 0 ? (
                 activity.categories.map((categoryId) => (
@@ -231,15 +262,16 @@ function ActivityDetail() {
                 </span>
               )}
             </div>
+            </div>
           </div>
-          <div className="md:w-1/2 order-1 md:order-2 md:mx-auto mx-5">
+          <div className="md:w-1/2 order-1 md:order-2 md:mx-auto mx-5 mt-8">
             <div className="relative w-full aspect-[5/3] mx-auto">
               <Image
                 src={activity.imageMain || "https://via.placeholder.com/600x360"}
                 alt="Activity"
                 layout="fill"
                 objectFit="cover"
-                className="rounded-md"
+                className="rounded-lg border-2"
                 priority={true}
               />
             </div>
@@ -254,7 +286,7 @@ function ActivityDetail() {
             สร้างกลุ่ม
           </button>
         </div>
-        <ScrollArea className="w-full max-w-5xl rounded-md border">
+        <ScrollArea className="w-full max-w-full rounded-md border">
           <div className="flex w-max space-x-4 p-4">
           {groups.length > 0 ? (
             groups.map((group) => {

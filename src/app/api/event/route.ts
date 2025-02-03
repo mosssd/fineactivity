@@ -10,7 +10,7 @@ interface CreateEventRequest {
   eventName: string
   image: string 
   description: string
-  address?: string
+  location?: string
   userId: string
   categories?: string[]
   contact: string
@@ -23,7 +23,7 @@ interface CreateEventRequest {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body: CreateEventRequest = await request.json();
-    const { eventName, image, description, address, userId, categories, contact, startDate, endDate, startTime, endTime} = body;
+    const { eventName, image, description, location, userId, categories, contact, startDate, endDate, startTime, endTime} = body;
 
     // ตรวจสอบข้อมูลเบื้องต้น
     if (!eventName || !description || !image) {
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         image,
         description,
         categories,
-        address,
+        location,
         contact,
         startDate,
         endDate,

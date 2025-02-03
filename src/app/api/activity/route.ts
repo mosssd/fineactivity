@@ -11,21 +11,23 @@ interface CreateActivityRequest {
   imageMain: string 
   imageDetail?: string[]
   description: string
-  address?: string
+  location?: string
   userId: string
-  categories?: string[]
+  categories: string[]
   contact: string
+  address?: string
+  dayTime: string
 }
 //โพสกิจกรรม
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body: CreateActivityRequest = await request.json();
-    const { activityName, imageMain, imageDetail , description, address, userId, categories, contact} = body;
+    const { activityName, imageMain, imageDetail , description, location, userId, categories, contact, address, dayTime} = body;
     const session = await getServerSession(authOptions);
     console.log("sesssjaa",session);
 
     // ตรวจสอบข้อมูลเบื้องต้น
-    if (!activityName || !description || !imageMain) {
+    if (!activityName || !imageMain || !categories || !contact || !address || !dayTime) { 
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
     // console.log("xxxxx",body);
@@ -37,8 +39,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         imageDetail ,
         description,
         categories,
-        address,
+        location,
         contact,
+        dayTime: dayTime ?? "default-value",
+        address,
         postedBy: {
           connect: { id: userId } 
         }
@@ -63,16 +67,33 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 //ดึงกิจกรรมทั้งหมด
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const activities = await prisma.activity.findMany(
-      {
+    const activities = await prisma.activity.findMany({
       include: {
-        postedBy: true,
+        // postedBy: true,
         activityGroup: true,
+        reviews: {
+          select: {
+            rating: true, // ดึง rating ของแต่ละรีวิวมาใช้
+          },
+        },
       },
-    }
-  );
+    });
 
-    return NextResponse.json(activities);
+    // คำนวณค่าเฉลี่ย rating สำหรับแต่ละกิจกรรม
+    const activitiesWithAvgRating = activities.map(activity => {
+      const ratings = activity.reviews.map(review => review.rating);
+      const avgRating =
+        ratings.length > 0
+          ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
+          : 0; // ถ้าไม่มีรีวิวให้ avgRating เป็น 0
+
+      return {
+        ...activity,
+        avgRating,
+      };
+    });
+
+    return NextResponse.json(activitiesWithAvgRating);
   } catch (error) {
     console.error("Error fetching activities:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
