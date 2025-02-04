@@ -10,6 +10,7 @@ export function cosineSimilarity(vecA: number[], vecB: number[]): number {
   return dotProduct / (magnitudeA * magnitudeB);
 }
 
+
 async function getRecommendedActivities(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -19,7 +20,7 @@ async function getRecommendedActivities(userId: string) {
   if (!user || user.savedActivities.length === 0) return [];
   console.log("userxx",user);
   // ดึงเวกเตอร์ของกิจกรรมที่ผู้ใช้บันทึกไว้
-  const savedActivityIds = user.savedActivities.slice(-3); // ใช้ 5 กิจกรรมล่าสุด
+  const savedActivityIds = user.savedActivities.slice(-3); // ใช้ 3 กิจกรรมล่าสุด
   console.log("savedActivityIdsxx",savedActivityIds);
   const savedActivities = await prisma.activity.findMany({
     where: { id: { in: savedActivityIds } },
@@ -39,7 +40,7 @@ async function getRecommendedActivities(userId: string) {
     },
     select: { id: true, vector: true },
   });
-  console.log("candidateActivitiesxx",candidateActivities);
+  // console.log("candidateActivitiesxx",candidateActivities);
   if (candidateActivities.length === 0) return [];
 
 // คำนวณ Cosine Similarity กับแต่ละเวกเตอร์ของกิจกรรมที่บันทึก
@@ -51,7 +52,7 @@ async function getRecommendedActivities(userId: string) {
       ), // ใช้ค่าที่คล้ายที่สุด
     }))
     .sort((a, b) => b.similarity - a.similarity)
-    .slice(0, 10);
+    // .slice(0, 10);
     console.log("rankedActivities",rankedActivities);
   return rankedActivities.map((a) => a.id);
 }
@@ -67,7 +68,29 @@ export async function GET(request: NextRequest, { params }: { params: { userId: 
   try {
     const recommendedActivities = await getRecommendedActivities(userId);
     console.log("recommendedActivities",recommendedActivities);
-    return NextResponse.json( recommendedActivities );
+
+    if (recommendedActivities.length === 0) {
+      return NextResponse.json([]);
+    }
+    const activities = await prisma.activity.findMany({
+      where: { id: { in: recommendedActivities } },
+      include: {
+        // postedBy: true,
+        activityGroup: true,
+        reviews: {
+          select: {
+            rating: true, // ดึง rating ของแต่ละรีวิวมาใช้
+          },
+        },
+      },
+    });
+
+    // เรียงลำดับ activities ให้ตรงกับลำดับของ recommendedActivities
+    const orderedActivities = recommendedActivities.map(id => 
+      activities.find(activity => activity.id === id)
+    );
+
+    return NextResponse.json(orderedActivities);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Failed to fetch recommendations" }, { status: 500 });

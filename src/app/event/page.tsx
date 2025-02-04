@@ -153,11 +153,11 @@ function eventPage() {
         <div className="flex justify-between items-center px-10 md:px-20">
           <div className="text-3xl font-bold">อีเว้นต์</div>
           <div className="flex space-x-4">
-          <Link href="/event/recommend">
+          {/* <Link href="/event/recommend">
         <button className="bg-green-500 text-white px-4 py-2 rounded-md">
           อีเว้นต์แนะนำ
         </button>
-      </Link>
+      </Link> */}
             <button
               onClick={() => setIsModalOpen(true)}
               className="bg-blue-500 text-white px-4 py-2 rounded-md"

@@ -27,8 +27,13 @@ export async function GET(request: NextRequest, { params }: { params: { userId: 
         id: { in: user.savedActivities }, // ดึงข้อมูลที่ id ตรงกับใน savedActivities
       },
       include: {
-        postedBy: true,
+        // postedBy: true,
         activityGroup: true,
+        reviews: {
+          select: {
+            rating: true, // ดึง rating ของแต่ละรีวิวมาใช้
+          },
+        },
       },
     });
     const orderedActivities = user.savedActivities.map(activityId => 
