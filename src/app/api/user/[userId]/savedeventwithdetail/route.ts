@@ -35,7 +35,11 @@ export async function GET(request: NextRequest, { params }: { params: { userId: 
     ).filter(event => event !== undefined) // กรองค่า null ออก
     .reverse();
 
-    return NextResponse.json(orderedEvents);
+    const filteredEvents = orderedEvents.filter((event) => {
+        return new Date(event.endDate) >= new Date();
+      }
+    );
+    return NextResponse.json(filteredEvents);
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

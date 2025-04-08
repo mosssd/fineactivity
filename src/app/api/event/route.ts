@@ -74,8 +74,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         },
       }
     );
+    //กรองevent ที่จบไปแล้วออก
+    const filteredEvents = events.filter((event) => {
+      return event.endDate > new Date();
+    });
 
-    return NextResponse.json(events);
+    return NextResponse.json(filteredEvents);
   } catch (error) {
     console.error("Error fetching events:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
