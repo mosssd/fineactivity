@@ -66,6 +66,7 @@ function GroupPageComponent({ session }: { session: any }) {
   return (
     <div>
       <Nav />
+      <div className="container mx-auto mt-24 max-w-screen-xl ">
       <div className="pt-6 mt-20">
         <div className="flex justify-between items-center px-10 md:px-20">
           <div className="text-3xl font-bold">กลุ่ม</div>
@@ -85,9 +86,9 @@ function GroupPageComponent({ session }: { session: any }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-10 md:px-20">
         {filteredData.map((item, index) => (
           <Link href={`/group/${item.id}`} key={index}>
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
                 <div className="relative z-10">
-                    <img className="w-[600px] h-[200px] object-cover" 
+                    <img className="sm:w-[320px] sm:h-[180px] h-[200px] w-full object-cover" 
                       src={item.activityBy.imageMain || "https://via.placeholder.com/600x360"}
                       alt={item.activityBy.activityName}
                     />
@@ -117,6 +118,7 @@ function GroupPageComponent({ session }: { session: any }) {
           </Link>
         ))}
         </div>
+      </div>
       </div>
     </div>
   )

@@ -78,13 +78,13 @@ function eventPage() {
 
   useEffect(() => {
     updateSession();
-    fetchData();
 
   }, []); 
 
     useEffect(() => {
       if (session?.user?.id) {
         fetchSavedEvents();
+        fetchData();
       }
     }, [session]);
 
@@ -124,10 +124,12 @@ function eventPage() {
     }
   };
   
-  function formatDateRange(startDate :Date, endDate :Date, startTime :string) {
+  function formatDateRange(startDate: Date, endDate: Date, startTime?: string) {
     if (isSameDay(startDate, endDate)) {
       // กรณีวันเดียวกัน
-      return `${format(startDate, "eee d MMM", { locale: th })} เวลา ${startTime}`;
+      return startTime
+        ? `${format(startDate, "eee d MMM", { locale: th })} เวลา ${startTime}`
+        : `${format(startDate, "eee d MMM", { locale: th })}`;
     } else {
       // กรณีคนละวัน
       return `${format(startDate, "d MMM", { locale: th })} - ${format(endDate, "d MMM", { locale: th })}`;
@@ -151,11 +153,11 @@ function eventPage() {
         <div className="flex justify-between items-center px-10 md:px-20">
           <div className="text-3xl font-bold">อีเว้นต์</div>
           <div className="flex space-x-4">
-          <Link href="/event/recommend">
+          {/* <Link href="/event/recommend">
         <button className="bg-green-500 text-white px-4 py-2 rounded-md">
           อีเว้นต์แนะนำ
         </button>
-      </Link>
+      </Link> */}
             <button
               onClick={() => setIsModalOpen(true)}
               className="bg-blue-500 text-white px-4 py-2 rounded-md"
@@ -177,9 +179,9 @@ function eventPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-10 md:px-20">
         {filteredData.map((item) => (
           <Link href={`/event/${item.id}`} key={item.id}>
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
               <div className="relative z-10">
-                  <img className="w-[600px] h-[200px] object-cover" src={item.image}/>
+                  <img className="w-[320px] h-[180px] object-cover" src={item.image}/>
                   <button
                     className={`absolute top-4 right-4 rounded-full w-8 h-8 flex items-center justify-center transition-all duration-300 bg-white`}
                     onClick={(e) => {

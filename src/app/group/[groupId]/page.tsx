@@ -12,6 +12,7 @@ import EditGroupModal from "../../components/EditGroupModal";
 import DeleteGroupPopup from "../../components/delGroupModal";
 import { useSession } from "next-auth/react";
 import { TrashIcon, PencilSquareIcon, ChatBubbleLeftRightIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+import { MapPinIcon, ClockIcon, PhoneIcon, InformationCircleIcon ,CalendarIcon } from "@heroicons/react/24/solid";
 
 interface Group {
   id: string;
@@ -90,7 +91,8 @@ function GroupDetail() {
     try {
       await axios.delete(`/api/group/${groupId}`);
       alert("กลุ่มถูกลบเรียบร้อยแล้ว");
-      window.location.href = `/activity/${group?.activityId}`;
+      // window.location.href = `/activity/${group?.activityId}`;
+      window.history.back();
     } catch (error) {
       console.error("Error deleting group:", error);
       alert("เกิดข้อผิดพลาดในการลบกลุ่ม");
@@ -143,20 +145,23 @@ function GroupDetail() {
           )}
         </div>
 
-        <div className="bg-slate-200 overflow-hidden flex flex-col md:flex-row mb-8">
+        <div className="overflow-hidden flex flex-col md:flex-row mb-8">
           <div className="md:w-1/2 p-6 order-2 md:order-1">
             <h3 className="text-xl font-semibold text-gray-800 mb-4">รายละเอียด</h3>
             <div className="ml-2">
-              <p className="text-gray-600 text-base mb-3">{group.description}</p>
+            <p className="text-gray-700 text-base mb-4 bg-gray-100 p-4 rounded-md whitespace-pre-line overflow-y-auto max-h-24 leading-relaxed border-2 border-solid">{group.description}</p>
                 {/* {group.date && group.date?.toISOString() !== "1970-01-01T00:00:00.000Z" && ( */}
+                <div className="bg-gray-100 p-4 rounded-md mb-4 border-2 border-solid">  
                 {group.date && (
-                <div className="text-gray-800 text-base mb-1">
-                  วันที่: {format(new Date(group.date), "eee d MMM", { locale: th })}
-                </div>
+                  <div className="flex items-center text-gray-700 mb-2">
+                    <CalendarIcon className="w-5 h-5 mr-2" />
+                    <span>{format(new Date(group.date), "eee d MMM", { locale: th })}</span>
+                  </div>
                 )}
-              <div className="text-gray-800 text-base mb-1">
-                เวลา: {group.startTime} - {group.endTime}
-              </div>
+                <div className="flex items-center text-gray-700 mb-2">
+                    <ClockIcon className="w-5 h-5 mr-2" />
+                    <span>{group.startTime} - {group.endTime}</span>
+                </div>
               <div className="text-gray-800 text-base mb-1">
                 หัวหน้ากลุ่ม:
                 <img
@@ -166,15 +171,16 @@ function GroupDetail() {
                 />
                 <span className="font-semibold ml-2">{group.postedBy.name}</span>
               </div>
+              </div>
               <button
               onClick={openUserModal}
-              className="bg-white text-black py-2 px-4 rounded-md shadow-md hover:bg-gray-200 transition duration-300 m-2"
+              className="bg-white text-black py-2 px-4 rounded-md border-2 hover:bg-gray-200 transition duration-300 m-2"
             >
               <UserCircleIcon className="w-6 h-6 inline-block mr-1" />สมาชิก
             </button>
             <Link
               href={`chat/${group.id}`}
-              className="bg-white text-black py-2 px-4 rounded-md shadow-md hover:bg-gray-200 transition duration-300 mt-4 inline-block m-2"
+              className="bg-white text-black py-2 px-4 rounded-md border-2 hover:bg-gray-200 transition duration-300 mt-4 inline-block m-2"
             >
               <ChatBubbleLeftRightIcon className="w-6 h-6 inline-block mr-1" />เปิดแชท
             </Link>

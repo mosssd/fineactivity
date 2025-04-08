@@ -34,15 +34,18 @@ model Activity {
   activityName String
   imageMain   String
   imageDetail String[]   @default([])
-  description String
-  address     String?
+  description String?
+  address     String?  
+  location     String?
   userId      String     @db.ObjectId
   postedBy    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   categories  String[]
-  contact    String
+  contact    String?
+  dayTime    String?
   activityGroup Group[]
   reviews    Review[]
   createdAt  DateTime @default(now()) @map("created_at")
+  vector     Float[] @default([])
 }
 
 model Group {
@@ -54,8 +57,8 @@ model Group {
   activityId  String     @db.ObjectId
   activityBy  Activity   @relation(fields: [activityId], references: [id], onDelete: Cascade)
   date   DateTime?
-  startTime  String @default("00:00")
-  endTime    String @default("00:00")
+  startTime  String?
+  endTime    String?
   listUserJoin String[]
   createdAt  DateTime @default(now()) @map("created_at")
 } 
@@ -63,18 +66,19 @@ model Event {
   id         String     @id @default(auto()) @map("_id") @db.ObjectId
   eventName String
   image   String
-  description String
-  address     String?
+  description String?
+  location     String?
   userId      String     @db.ObjectId
   postedBy    User       @relation(fields: [userId], references: [id] ,onDelete: Cascade)
   categories  String[]
-  contact    String
+  contact    String?
   startDate  DateTime 
   endDate    DateTime
-  startTime  String @default("00:00")
-  endTime    String @default("00:00")
+  startTime  String?
+  endTime    String?
   createdAt  DateTime @default(now()) @map("created_at")
   listUserJoin String[]
+  vector     Float[] @default([])
 }
 
 model Category {

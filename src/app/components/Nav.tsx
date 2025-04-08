@@ -102,7 +102,7 @@ function Nav() {
                 {/* ไปหน้า Profile */}
                 <li>
                   <Link
-                    href="/profiletwo"
+                    href="/profile"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     onClick={() => setIsDropdownOpen(false)} // ปิด dropdown เมื่อคลิก
                   >

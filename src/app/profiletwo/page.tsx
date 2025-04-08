@@ -31,7 +31,7 @@ export default function Profile() {
         <Nav/>
         <div className="bg-gray-100 flex flex-col items-center py-10">
       {/* Profile Header */}
-      <div className="w-full bg-orange-300 text-white pt-20 ">
+      <div className="w-full bg-gradient-to-r from-orange-400 to-orange-300 text-white pt-20 ">
         <div className="mx-auto flex items-center justify-between">
           {/* Profile Section */}
           <div className="flex-shrink-0 w-1/3 flex flex-col items-center justify-center p-6">

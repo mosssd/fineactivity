@@ -27,8 +27,13 @@ export async function GET(request: NextRequest, { params }: { params: { userId: 
         id: { in: user.savedActivities }, // ดึงข้อมูลที่ id ตรงกับใน savedActivities
       },
       include: {
-        postedBy: true,
+        // postedBy: true,
         activityGroup: true,
+        reviews: {
+          select: {
+            rating: true, // ดึง rating ของแต่ละรีวิวมาใช้
+          },
+        },
       },
     });
     const orderedActivities = user.savedActivities.map(activityId => 
@@ -36,7 +41,20 @@ export async function GET(request: NextRequest, { params }: { params: { userId: 
     ).filter(activity => activity !== undefined)
     .reverse(); // กรองค่า null ออก
     
-    return NextResponse.json( orderedActivities );
+    const activitiesWithAvgRating = activities.map(orderedActivities => {
+      const ratings = orderedActivities.reviews.map(review => review.rating);
+      const avgRating =
+        ratings.length > 0
+          ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
+          : 0; // ถ้าไม่มีรีวิวให้ avgRating เป็น 0
+
+      return {
+        ...orderedActivities,
+        avgRating,
+      };
+    });
+
+    return NextResponse.json( activitiesWithAvgRating );
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

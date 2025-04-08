@@ -147,6 +147,7 @@ function eventPage() {
   return (
     <div>
       <Nav />
+      <div className="container mx-auto mt-24 max-w-screen-xl ">
       <div className="pt-6 mt-20">
         <div className="flex justify-between items-center px-10 md:px-20">
           <div className="text-3xl font-bold">อีเว้นต์</div>
@@ -172,9 +173,9 @@ function eventPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-10 md:px-20">
         {filteredData.map((item) => (
           <Link href={`/event/${item.id}`} key={item.id}>
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
               <div className="relative z-10">
-                  <img className="w-[600px] h-[200px] object-cover" src={item.image}/>
+                  <img className="w-[320px] h-[180px] object-cover" src={item.image}/>
                   <button
                     className={`absolute top-4 right-4 rounded-full w-8 h-8 flex items-center justify-center transition-all duration-300 bg-white`}
                     onClick={(e) => {
@@ -213,6 +214,7 @@ function eventPage() {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleCreateEvent}
       />
+    </div>
     </div>
     
   )

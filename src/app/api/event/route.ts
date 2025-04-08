@@ -10,7 +10,7 @@ interface CreateEventRequest {
   eventName: string
   image: string 
   description: string
-  address?: string
+  location?: string
   userId: string
   categories?: string[]
   contact: string
@@ -23,10 +23,10 @@ interface CreateEventRequest {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body: CreateEventRequest = await request.json();
-    const { eventName, image, description, address, userId, categories, contact, startDate, endDate, startTime, endTime} = body;
+    const { eventName, image, description, location, userId, categories, contact, startDate, endDate, startTime, endTime} = body;
 
     // ตรวจสอบข้อมูลเบื้องต้น
-    if (!eventName || !description || !image) {
+    if (!eventName || !description || !image || !startDate || !endDate ) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
     console.log("xxxxx",body);
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         image,
         description,
         categories,
-        address,
+        location,
         contact,
         startDate,
         endDate,
@@ -74,8 +74,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         },
       }
     );
+    //กรองevent ที่จบไปแล้วออก
+    const filteredEvents = events.filter((event) => {
+      return event.endDate > new Date();
+    });
 
-    return NextResponse.json(events);
+    return NextResponse.json(filteredEvents);
   } catch (error) {
     console.error("Error fetching events:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

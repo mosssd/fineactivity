@@ -163,7 +163,10 @@ const GroupChatPage = () => {
     <div>
       <Nav />
       <div className="container mx-auto mt-24 px-4 md:px-20">
-        <h1 className="text-2xl font-bold mb-4">Group Chat</h1>
+        <div className="flex justify-normal items-center px-4 py-2 bg-white border-b">
+          <h1 className="text-2xl font-bold mr-4">Group Chat</h1>
+          <p className="text-sm text-red-500 font-bold">* โปรดระวัง! ห้ามเปิดเผยข้อมูลส่วนตัวและหลีกเลี่ยงการหลอกลวงทุกประเภท</p>
+        </div>
         <div className="border rounded-md p-4 h-[60vh] overflow-y-auto bg-gray-50">
         {messages?.map((msg) => {
             const messageDate = formatDate(msg.creatAt);
